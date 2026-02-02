@@ -1,0 +1,32 @@
+<div class="orders-container">
+  <h1>Orders</h1>
+  <p class="description">Endpoint: GET /api/orders (Requires: User role + country=CL)</p>
+
+  <div *ngIf="loading" class="loading">Loading orders...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <div *ngIf="orders" class="orders-list">
+    <div class="order-card" *ngFor="let order of orders">
+      <div class="order-header">
+        <h3>Order #{{ order.id }}</h3>
+        <span class="status" [class]="'status-' + order.status.toLowerCase()">
+          {{ order.status }}
+        </span>
+      </div>
+      <div class="order-details">
+        <p><strong>Customer:</strong> {{ order.customerName }}</p>
+        <p><strong>Product:</strong> {{ order.product }}</p>
+        <p><strong>Amount:</strong> ${{ order.amount }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="metadata" class="metadata">
+    <h3>Request Metadata</h3>
+    <pre>{{ metadata | json }}</pre>
+  </div>
+
+  <button (click)="loadOrders()" class="btn btn-primary" [disabled]="loading">
+    Refresh Orders
+  </button>
+</div>

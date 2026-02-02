@@ -1,0 +1,99 @@
+version: '3.8'
+
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    container_name: keycloak
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_HTTPS: false
+      KC_HTTP_ENABLED: true
+    ports:
+      - "8082:8080"
+    command: start-dev --import-realm
+    volumes:
+      - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json
+    depends_on:
+      - postgres
+    networks:
+      - auth-network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres-keycloak
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - auth-network
+
+  auth-gateway:
+    build:
+      context: ./src/AuthGateway
+      dockerfile: Dockerfile
+    container_name: auth-gateway
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:5000
+      Keycloak__Authority: http://keycloak:8080/realms/auth-gateway-realm
+      Keycloak__Audience: auth-gateway-api
+      OrdersApi__BaseUrl: http://orders-api:5001
+      AdminApi__BaseUrl: http://admin-api:5002
+    ports:
+      - "5003:5000"
+    depends_on:
+      - keycloak
+      - orders-api
+      - admin-api
+    networks:
+      - auth-network
+
+  orders-api:
+    build:
+      context: ./src/OrdersApi
+      dockerfile: Dockerfile
+    container_name: orders-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:5001
+      Keycloak__Authority: http://keycloak:8080/realms/auth-gateway-realm
+      Keycloak__Audience: orders-api
+    ports:
+      - "5004:5001"
+    depends_on:
+      - keycloak
+    networks:
+      - auth-network
+
+  admin-api:
+    build:
+      context: ./src/AdminApi
+      dockerfile: Dockerfile
+    container_name: admin-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:5002
+      Keycloak__Authority: http://keycloak:8080/realms/auth-gateway-realm
+      Keycloak__Audience: admin-api
+    ports:
+      - "5005:5002"
+    depends_on:
+      - keycloak
+    networks:
+      - auth-network
+
+networks:
+  auth-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

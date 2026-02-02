@@ -1,0 +1,242 @@
+{
+  "realm": "auth-gateway-realm",
+  "enabled": true,
+  "displayName": "Auth Gateway Realm",
+  "accessTokenLifespan": 300,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "clients": [
+    {
+      "clientId": "angular-spa",
+      "enabled": true,
+      "redirectUris": [
+        "http://localhost:4200/*",
+        "http://localhost:4200"
+      ],
+      "webOrigins": [
+        "http://localhost:4200"
+      ],
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      },
+      "defaultClientScopes": [
+        "web-origins",
+        "role_list",
+        "profile",
+        "roles",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "offline_access",
+        "microprofile-jwt"
+      ]
+    },
+    {
+      "clientId": "auth-gateway-api",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "auth-gateway-secret",
+      "redirectUris": [],
+      "webOrigins": [],
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "publicClient": false,
+      "bearerOnly": true,
+      "protocol": "openid-connect"
+    },
+    {
+      "clientId": "orders-api",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "orders-api-secret",
+      "redirectUris": [],
+      "webOrigins": [],
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "publicClient": false,
+      "bearerOnly": true,
+      "protocol": "openid-connect"
+    },
+    {
+      "clientId": "admin-api",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "admin-api-secret",
+      "redirectUris": [],
+      "webOrigins": [],
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "publicClient": false,
+      "bearerOnly": true,
+      "protocol": "openid-connect"
+    }
+  ],
+  "roles": {
+    "realm": [
+      {
+        "name": "User",
+        "description": "Standard user role"
+      },
+      {
+        "name": "Admin",
+        "description": "Administrator role with full access"
+      },
+      {
+        "name": "Support",
+        "description": "Support team role"
+      }
+    ]
+  },
+  "users": [
+    {
+      "username": "admin",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "admin@example.com",
+      "firstName": "Admin",
+      "lastName": "User",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "Admin"
+      ],
+      "attributes": {
+        "country": ["CL"],
+        "department": ["IT"],
+        "tenant": ["tenant-001"],
+        "workingHours": ["09:00-18:00"]
+      }
+    },
+    {
+      "username": "user",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "user@example.com",
+      "firstName": "Regular",
+      "lastName": "User",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "user123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "User"
+      ],
+      "attributes": {
+        "country": ["CL"],
+        "department": ["Sales"],
+        "tenant": ["tenant-002"],
+        "workingHours": ["08:00-17:00"]
+      }
+    },
+    {
+      "username": "support",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "support@example.com",
+      "firstName": "Support",
+      "lastName": "Agent",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "support123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "Support"
+      ],
+      "attributes": {
+        "country": ["CL"],
+        "department": ["IT"],
+        "tenant": ["tenant-001"],
+        "workingHours": ["09:00-18:00"]
+      }
+    }
+  ],
+  "protocolMappers": [
+    {
+      "name": "country",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-usermodel-attribute-mapper",
+      "config": {
+        "user.attribute": "country",
+        "claim.name": "country",
+        "jsonType.label": "String",
+        "id.token.claim": "true",
+        "access.token.claim": "true",
+        "userinfo.token.claim": "true"
+      }
+    },
+    {
+      "name": "department",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-usermodel-attribute-mapper",
+      "config": {
+        "user.attribute": "department",
+        "claim.name": "department",
+        "jsonType.label": "String",
+        "id.token.claim": "true",
+        "access.token.claim": "true",
+        "userinfo.token.claim": "true"
+      }
+    },
+    {
+      "name": "tenant",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-usermodel-attribute-mapper",
+      "config": {
+        "user.attribute": "tenant",
+        "claim.name": "tenant",
+        "jsonType.label": "String",
+        "id.token.claim": "true",
+        "access.token.claim": "true",
+        "userinfo.token.claim": "true"
+      }
+    },
+    {
+      "name": "workingHours",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-usermodel-attribute-mapper",
+      "config": {
+        "user.attribute": "workingHours",
+        "claim.name": "workingHours",
+        "jsonType.label": "String",
+        "id.token.claim": "true",
+        "access.token.claim": "true",
+        "userinfo.token.claim": "true"
+      }
+    },
+    {
+      "name": "roles",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-usermodel-realm-role-mapper",
+      "config": {
+        "multivalued": "true",
+        "user.attribute": "foo",
+        "claim.name": "roles",
+        "jsonType.label": "String",
+        "id.token.claim": "true",
+        "access.token.claim": "true",
+        "userinfo.token.claim": "true"
+      }
+    }
+  ]
+}
